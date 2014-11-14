@@ -29,7 +29,7 @@ format long g;
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-selector = 15;
+selector =0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -64,7 +64,7 @@ figure
 
 for kk = 1:meas_no
 sp_hist(kk) = subplot(1,meas_no,kk);
-bins = min(meas(:,kk)):((max(meas(:,kk))-min(meas(:,kk)))/50):max(meas(:,kk));
+bins = linspace( min(meas(:,kk)),max(meas(:,kk)),50  );
 n = hist(meas(:,kk),bins);
 bar (bins,n,'FaceColor',clr(kk,:),'EdgeColor','none');
 f = (   1/(meas_RMS(kk)*sqrt(2*pi))   )  *  exp(-0.5*((bins-mean(meas(:,kk)))/meas_RMS(:,kk)).^2  );
@@ -132,11 +132,15 @@ pause(2);
 %% PSD - Power Spectral Density
 figure
 
-[Pxx,F] = pwelch(meas,hamming(meas_length),0,meas_length,Fs);
+Pxx = []; % W/hz
+F = [];   % hz
+for kk = 1:meas_no
+    [Pxx(:,kk),F(:,kk)] = pwelch(meas(:,kk),hamming(meas_length),0,meas_length,Fs);
+end
 
 for kk = 1:meas_no
     sp_psd(kk) = subplot(1,meas_no,kk);
-    plot(F,10*log10(Pxx(:,kk)),'color',clr(kk,:));
+    plot(F(:,kk),10*log10(Pxx(:,kk)),'color',clr(kk,:));
     xlabel('Hz'),
     ylabel('dB');
     axis square;
@@ -164,10 +168,10 @@ for kk = 1:meas_no
     l_h(2) = vline(SW_cutoff,'b-', SW_str);
     l_h(3) = hline(10*log10(PSD(kk)),'k:', PSD_str);
     
-    l_h(1).LineWidth = 2;
-    l_h(2).LineWidth = 2;
-    l_h(3).LineWidth = 2;
-    
+    set(l_h(1),'LineWidth',2 )
+    set(l_h(2),'LineWidth',2 )
+    set(l_h(3),'LineWidth',2 )
+
     grid on;
 end
 
